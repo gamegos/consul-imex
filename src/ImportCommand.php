@@ -7,7 +7,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Exception\RuntimeException;
 
 /* Imports from Guzzle */
 use GuzzleHttp\Client;
@@ -62,27 +61,27 @@ class ImportCommand extends Command
     {
         $url = $input->getOption('url');
         if (!filter_var($url, FILTER_VALIDATE_URL)) {
-            throw new RuntimeException(sprintf('Invalid url (%s).', $url));
+            throw new ImportException(sprintf('Invalid url (%s).', $url));
         }
         $this->baseUrl = $url . self::ENDPOINT;
 
         $file   = $input->getArgument('file');
         $handle = @ fopen($file, 'rb');
         if (false === $handle) {
-            throw new RuntimeException(sprintf('Cannot open file (%s).', $file));
+            throw new ImportException(sprintf('Cannot open file for reading (%s).', $file));
         }
 
         $json = @ stream_get_contents($handle);
         if (false === $json) {
-            throw new RuntimeException(sprintf('Cannot read file (%s).', $file));
+            throw new ImportException(sprintf('Cannot read file (%s).', $file));
         }
 
         $data = @ json_decode($json, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new RuntimeException(json_last_error_msg());
+            throw new ImportException(json_last_error_msg());
         }
         if (!is_array($data)) {
-            throw new RuntimeException('Invalid JSON, expected an object or array as the root element.');
+            throw new ImportException('Invalid JSON, expected an object or array as the root element.');
         }
 
         $prefix = trim($input->getOption('prefix'), '/');
