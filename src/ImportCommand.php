@@ -85,11 +85,19 @@ class ImportCommand extends Command
         }
 
         $prefix = trim($input->getOption('prefix'), '/');
-        if ('' !== $prefix) {
-            $prefix .= '/';
-        }
 
         $this->output = $output;
+
+        if ('' !== $prefix) {
+            $key = '';
+            foreach (explode('/', $prefix) as $node) {
+                $key .= $node . '/';
+                if (!$this->keyExists($key)) {
+                    $this->setKey($key);
+                }
+            }
+            $prefix = $key;
+        }
 
         $this->process($data, $prefix);
 
