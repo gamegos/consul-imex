@@ -39,7 +39,7 @@ class ImportCommand extends Command
      * Key-value endpoint
      * @var string
      */
-    const ENDPOINT    = '/v1/kv/';
+    const ENDPOINT = '/v1/kv/';
 
     /**
      * {@inheritdoc}

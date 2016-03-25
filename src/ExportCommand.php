@@ -45,7 +45,7 @@ class ExportCommand extends Command
      * Key-value endpoint
      * @var string
      */
-    const ENDPOINT    = '/v1/kv/';
+    const ENDPOINT = '/v1/kv/';
 
     /**
      * {@inheritdoc}
@@ -157,7 +157,7 @@ class ExportCommand extends Command
 
         $this->output->write("Fetch key: <comment>{$path}</comment> ... ");
 
-        $uri = $this->baseUrl. $this->prefix . $path . '?raw';
+        $uri = $this->baseUrl . $this->prefix . $path . '?raw';
         /* @var $response \Psr\Http\Message\ResponseInterface */
         $response = (new Client())->get($uri, ['exceptions' => false]);
         $status   = $response->getStatusCode() == 200 ? '<info>OK</info>' : '<error>Fail</error>';
