@@ -18,6 +18,9 @@
             "Gamegos\\ConsulImex\\": "src/"
         }
     },
+    "require-dev": {
+        "gamegos/php-code-sniffer": "*"
+    },
     "authors": [
         {
             "name": "Safak Ozpinar",

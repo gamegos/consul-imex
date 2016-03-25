@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "d154cc5e7d250fc4ec509be6e7a8e8f1",
-    "content-hash": "fc9297984bf3960f931046d4b7b34ade",
+    "hash": "4c31191f8484e2373a01dc49233c03e0",
+    "content-hash": "dd37f61685b0577eaf0d94c0b9f67548",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -347,7 +347,52 @@
             "time": "2016-01-20 09:13:37"
         }
     ],
-    "packages-dev": [],
+    "packages-dev": [
+        {
+            "name": "gamegos/php-code-sniffer",
+            "version": "0.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/gamegos/php-code-sniffer.git",
+                "reference": "55ee71c6eec8162ed4c14bd5bf0cf21e0e1aa473"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/gamegos/php-code-sniffer/zipball/55ee71c6eec8162ed4c14bd5bf0cf21e0e1aa473",
+                "reference": "55ee71c6eec8162ed4c14bd5bf0cf21e0e1aa473",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.10"
+            },
+            "require-dev": {
+                "squizlabs/php_codesniffer": "2.*"
+            },
+            "bin": [
+                "bin/phpcs",
+                "bin/phpcs-pre-commit",
+                "bin/phpcbf"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Safak Ozpinar",
+                    "email": "safak@gamegos.com"
+                }
+            ],
+            "description": "Gamegos PHP Code Sniffer",
+            "time": "2015-12-22 09:43:11"
+        }
+    ],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": [],
