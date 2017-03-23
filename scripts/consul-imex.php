@@ -6,5 +6,6 @@ $app = new Symfony\Component\Console\Application('Import/Export Tool for Consul 
 $app->addCommands([
     new Gamegos\ConsulImex\ImportCommand(),
     new Gamegos\ConsulImex\ExportCommand(),
+    new Gamegos\ConsulImex\CopyCommand(),
 ]);
 $app->run();
