@@ -12,6 +12,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 class ImportCommand extends AbstractCommand
 {
     /**
+     * Number of stored keys.
+     * @var integer
+     */
+    protected $keyCount = 0;
+
+    /**
+     * Number of created directories.
+     * @var integer
+     */
+    protected $dirCount = 0;
+
+    /**
      * Construct.
      */
     public function __construct()
@@ -44,7 +56,20 @@ class ImportCommand extends AbstractCommand
             throw new ImportException('Invalid JSON, expected an object or array as the root element.');
         }
 
+        $this->keyCount = 0;
+        $this->dirCount = 0;
+
         $this->import($data);
+
+        $this->getOutput()->write(sprintf('<options=bold>%d</> key(s) are stored.', $this->keyCount));
+        if ($this->dirCount) {
+            $this->getOutput()->write(sprintf(
+                ' (%d new %s created.)',
+                $this->dirCount,
+                $this->dirCount == 1 ? 'directory is' : 'directories are'
+            ));
+        }
+        $this->getOutput()->writeln('');
     }
 
     /**
@@ -59,19 +84,20 @@ class ImportCommand extends AbstractCommand
             if (is_array($value)) {
                 $path .= '/';
                 if (!$this->keyExists($path)) {
-                    $this->setKey($path);
+                    $this->dirCount += $this->setKey($path);
                 }
                 $this->import($value, $path);
             } else {
-                $this->setKey($path, $value);
+                $this->keyCount += $this->setKey($path, $value);
             }
         }
     }
 
     /**
      * Create/update a key under current base URL.
-     * @param string $key
-     * @param string $value
+     * @param  string $key
+     * @param  string $value
+     * @return bool
      */
     protected function setKey($key, $value = null)
     {
@@ -84,7 +110,14 @@ class ImportCommand extends AbstractCommand
                 'exceptions' => false,
             ]
         );
-        $this->getOutput()->writeln($response->getStatusCode() == 200 ? '<info>OK</info>' : '<error>Fail</error>', OutputInterface::VERBOSITY_VERBOSE);
+
+        if ($response->getStatusCode() == 200) {
+            $this->getOutput()->writeln('<info>OK</info>', OutputInterface::VERBOSITY_VERBOSE);
+            return true;
+        }
+
+        $this->getOutput()->writeln('<error>Fail</error>', OutputInterface::VERBOSITY_VERBOSE);
+        return false;
     }
 
     /**
