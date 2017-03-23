@@ -42,11 +42,13 @@ class ExportCommand extends AbstractCommand
      */
     protected function export()
     {
-        $keys = $this->getKeys();
-        $data = [];
+        $keys    = $this->getKeys();
+        $data    = [];
+        $success = 0;
         foreach ($keys as $path) {
-            $this->fetchValue($data, $path);
+            $success += (int) $this->fetchValue($data, $path);
         }
+        $this->getOutput()->writeln(sprintf('<options=bold>%d</> key(s) are fetched.', $success));
         return $data;
     }
 
@@ -80,14 +82,15 @@ class ExportCommand extends AbstractCommand
 
     /**
      * Fetch a value from Consul into a buffer with reccursive index.
-     * @param array $buffer Buffer that the value will be added in.
-     * @param string $path Path of a key that is relative to current prefix.
+     * @param  array $buffer Buffer that the value will be added in.
+     * @param  string $path Path of a key that is relative to current prefix.
+     * @return bool
      */
     protected function fetchValue(array & $buffer, $path)
     {
         $container = & $this->createContainer($buffer, $path);
         if (preg_match('#/$#', $path)) {
-            return;
+            return false;
         }
 
         $this->getOutput()->write("Fetch key: <comment>{$this->getFullKey($path)}</comment> ... ", false, OutputInterface::VERBOSITY_VERBOSE);
@@ -95,11 +98,13 @@ class ExportCommand extends AbstractCommand
         $uri = $this->createUri($path . '?raw');
         /* @var $response \Psr\Http\Message\ResponseInterface */
         $response = $this->getHttpClient()->get($uri, ['exceptions' => false]);
-        $status   = $response->getStatusCode() == 200 ? '<info>OK</info>' : '<error>Fail</error>';
-
-        $container[basename($path)] = $response->getBody()->getContents();
-
-        $this->getOutput()->writeln($status, OutputInterface::VERBOSITY_VERBOSE);
+        if ($response->getStatusCode() == 200) {
+            $container[basename($path)] = $response->getBody()->getContents();
+            $this->getOutput()->writeln('<info>OK</info>', OutputInterface::VERBOSITY_VERBOSE);
+            return true;
+        }
+        $this->getOutput()->writeln('<error>Fail</error>', OutputInterface::VERBOSITY_VERBOSE);
+        return false;
     }
 
     /**
