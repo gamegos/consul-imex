@@ -2,56 +2,22 @@
 namespace Gamegos\ConsulImex;
 
 /* Imports from symfony/console */
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/* Imports from Guzzle */
-use GuzzleHttp\Client;
-
 /**
- * Consul Import Command
+ * Consul Import
  * @author Safak Ozpinar <safak@gamegos.com>
  */
-class ImportCommand extends Command
+class ImportCommand extends AbstractCommand
 {
     /**
-     * Current base URL of key-value API.
-     * @var string
+     * Construct.
      */
-    protected $baseUrl = '';
-
-    /**
-     * Current console output handler.
-     * @var OutputInterface
-     */
-    protected $output;
-
-    /**
-     * Default API URL
-     * @var string
-     */
-    const DEFAULT_URL = 'http://localhost:8500';
-
-    /**
-     * Key-value endpoint
-     * @var string
-     */
-    const ENDPOINT = '/v1/kv/';
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    public function __construct()
     {
-        $this->setName('import');
+        parent::__construct('import');
         $this->setDescription('Imports data from a file to Consul key-value service.');
-
-        $this->addArgument('file', InputArgument::REQUIRED, 'Input data file.');
-        $this->addOption('url', 'u', InputOption::VALUE_OPTIONAL, 'Consul server url.', self::DEFAULT_URL);
-        $this->addOption('prefix', 'p', InputOption::VALUE_OPTIONAL, 'Path prefix.', '/');
     }
 
     /**
@@ -59,12 +25,6 @@ class ImportCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $url = $input->getOption('url');
-        if (!filter_var($url, FILTER_VALIDATE_URL)) {
-            throw new ImportException(sprintf('Invalid url (%s).', $url));
-        }
-        $this->baseUrl = $url . self::ENDPOINT;
-
         $file   = $input->getArgument('file');
         $handle = @ fopen($file, 'rb');
         if (false === $handle) {
@@ -84,43 +44,26 @@ class ImportCommand extends Command
             throw new ImportException('Invalid JSON, expected an object or array as the root element.');
         }
 
-        $prefix = trim($input->getOption('prefix'), '/');
-
-        $this->output = $output;
-
-        if ('' !== $prefix) {
-            $key = '';
-            foreach (explode('/', $prefix) as $node) {
-                $key .= $node . '/';
-                if (!$this->keyExists($key)) {
-                    $this->setKey($key);
-                }
-            }
-            $prefix = $key;
-        }
-
-        $this->process($data, $prefix);
-
-        $this->output = null;
+        $this->import($data);
     }
 
     /**
-     * Process the operation.
+     * Import nested array under a prefix.
      * @param array $data
      * @param string $prefix
      */
-    protected function process(array $data, $prefix)
+    protected function import(array $data, $prefix = '')
     {
         foreach ($data as $key => $value) {
-            $key = $prefix . trim($key, '/');
+            $path = $prefix . trim($key, '/');
             if (is_array($value)) {
-                $key .= '/';
-                if (!$this->keyExists($key)) {
-                    $this->setKey($key);
+                $path .= '/';
+                if (!$this->keyExists($path)) {
+                    $this->setKey($path);
                 }
-                $this->process($value, $key);
+                $this->import($value, $path);
             } else {
-                $this->setKey($key, $value);
+                $this->setKey($path, $value);
             }
         }
     }
@@ -132,11 +75,16 @@ class ImportCommand extends Command
      */
     protected function setKey($key, $value = null)
     {
-        $this->output->write("Set key: <comment>{$key}</comment> ... ");
+        $this->getOutput()->write("Set key: <comment>{$this->getFullKey($key)}</comment> ... ", false, OutputInterface::VERBOSITY_VERBOSE);
         /* @var $response \Psr\Http\Message\ResponseInterface */
-        $response = (new Client())->put($this->baseUrl . $key, ['body' => $value, 'exceptions' => false]);
-        $status   = $response->getStatusCode() == 200 ? '<info>OK</info>' : '<error>Fail</error>';
-        $this->output->writeln($status);
+        $response = $this->getHttpClient()->put(
+            $this->createUri($key),
+            [
+                'body'       => $value,
+                'exceptions' => false,
+            ]
+        );
+        $this->getOutput()->writeln($response->getStatusCode() == 200 ? '<info>OK</info>' : '<error>Fail</error>', OutputInterface::VERBOSITY_VERBOSE);
     }
 
     /**
@@ -144,10 +92,10 @@ class ImportCommand extends Command
      * @param  string $key
      * @return bool
      */
-    protected function keyExists($key)
+    protected function keyExists($key, $isRelative = false)
     {
         /* @var $response \Psr\Http\Message\ResponseInterface */
-        $response = (new Client())->get($this->baseUrl . $key, ['exceptions' => false]);
+        $response = $this->getHttpClient()->get($this->createUri($key), ['exceptions' => false]);
         return $response->getStatusCode() == 200;
     }
 }

@@ -2,62 +2,22 @@
 namespace Gamegos\ConsulImex;
 
 /* Imports from symfony/console */
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/* Imports from Guzzle */
-use GuzzleHttp\Client;
-
 /**
- * Consul Export Command
+ * Consul Export
  * @author Safak Ozpinar <safak@gamegos.com>
  */
-class ExportCommand extends Command
+class ExportCommand extends AbstractCommand
 {
     /**
-     * Current base URL of key-value API.
-     * @var string
+     * Construct.
      */
-    protected $baseUrl = '';
-
-    /**
-     * Key prefix for current operation.
-     * @var string
-     */
-    protected $prefix = '';
-
-    /**
-     * Current console output handler.
-     * @var OutputInterface
-     */
-    protected $output;
-
-    /**
-     * Default API URL
-     * @var string
-     */
-    const DEFAULT_URL = 'http://localhost:8500';
-
-    /**
-     * Key-value endpoint
-     * @var string
-     */
-    const ENDPOINT = '/v1/kv/';
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    public function __construct()
     {
-        $this->setName('export');
+        parent::__construct('export');
         $this->setDescription('Exports data from Consul key-value service.');
-
-        $this->addArgument('file', InputArgument::REQUIRED, 'Output data file.');
-        $this->addOption('url', 'u', InputOption::VALUE_OPTIONAL, 'Consul server url.', self::DEFAULT_URL);
-        $this->addOption('prefix', 'p', InputOption::VALUE_OPTIONAL, 'Path prefix.', '/');
     }
 
     /**
@@ -65,37 +25,22 @@ class ExportCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $url = $input->getOption('url');
-        if (!filter_var($url, FILTER_VALIDATE_URL)) {
-            throw new ExportException(sprintf('Invalid url (%s).', $url));
-        }
-        $this->baseUrl = $url . self::ENDPOINT;
-
-        $this->prefix = trim($input->getOption('prefix'), '/');
-        if ('' !== $this->prefix) {
-            $this->prefix .= '/';
-        }
-
+        $data   = $this->export();
         $file   = $input->getArgument('file');
         $handle = @ fopen($file, 'wb');
         if (false === $handle) {
             throw new ExportException(sprintf('Cannot open file for writing (%s).', $file));
         }
-
-        $this->output = $output;
-
-        $data = $this->process();
         if (!fwrite($handle, json_encode($data, JSON_PRETTY_PRINT))) {
             throw new ExportException(sprintf('Cannot write file (%s).', $file));
         }
-
-        $this->output = null;
     }
 
     /**
-     * Process the operation.
+     * Export values into a nested array.
+     * @return array
      */
-    protected function process()
+    protected function export()
     {
         $keys = $this->getKeys();
         $data = [];
@@ -112,9 +57,9 @@ class ExportCommand extends Command
      */
     protected function getKeys()
     {
-        $uri = $this->baseUrl . $this->prefix . '?keys';
+        $uri = $this->createUri('?keys');
         /* @var $response \Psr\Http\Message\ResponseInterface */
-        $response = (new Client())->get($uri, ['exceptions' => false]);
+        $response = $this->getHttpClient()->get($uri, ['exceptions' => false]);
         if ($response->getStatusCode() != 200) {
             throw new ExportException(
                 sprintf('Consul API request returned %d (%s).', $response->getStatusCode(), $uri)
@@ -130,17 +75,7 @@ class ExportCommand extends Command
             throw new ExportException(sprintf('Unexpected Consul API response format (%s).', $uri));
         }
 
-        $prefixLength = strlen($this->prefix);
-
-        return array_filter(
-            array_map(
-                function ($path) use ($prefixLength) {
-                    return substr($path, $prefixLength);
-                },
-                $keys
-            ),
-            'strlen'
-        );
+        return array_filter(array_map([$this, 'getRelativeKey'], $keys), 'strlen');
     }
 
     /**
@@ -155,16 +90,16 @@ class ExportCommand extends Command
             return;
         }
 
-        $this->output->write("Fetch key: <comment>{$path}</comment> ... ");
+        $this->getOutput()->write("Fetch key: <comment>{$this->getFullKey($path)}</comment> ... ", false, OutputInterface::VERBOSITY_VERBOSE);
 
-        $uri = $this->baseUrl . $this->prefix . $path . '?raw';
+        $uri = $this->createUri($path . '?raw');
         /* @var $response \Psr\Http\Message\ResponseInterface */
-        $response = (new Client())->get($uri, ['exceptions' => false]);
+        $response = $this->getHttpClient()->get($uri, ['exceptions' => false]);
         $status   = $response->getStatusCode() == 200 ? '<info>OK</info>' : '<error>Fail</error>';
 
         $container[basename($path)] = $response->getBody()->getContents();
 
-        $this->output->writeln($status);
+        $this->getOutput()->writeln($status, OutputInterface::VERBOSITY_VERBOSE);
     }
 
     /**
