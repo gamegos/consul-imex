@@ -7,6 +7,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Exception\RuntimeException;
 
 /* Imports from Guzzle */
 use GuzzleHttp\Client;
@@ -68,6 +69,8 @@ abstract class AbstractCommand extends Command
      */
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
+        $this->healthCheck($input);
+
         $this->prefix = trim($input->getOption('prefix'), '/');
         if ('' !== $this->prefix) {
             $this->prefix .= '/';
@@ -106,6 +109,18 @@ abstract class AbstractCommand extends Command
     protected function createUri($relativeUri)
     {
         return $this->baseUrl . $this->prefix . $relativeUri;
+    }
+
+    /**
+     * Health check.
+     */
+    public function healthCheck(InputInterface $input)
+    {
+        $server   = $input->getOption('url');
+        $response = $this->getHttpClient()->get($server . '/v1/health/service/consul', ['exceptions' => false]);
+        if ($response->getStatusCode() != 200) {
+            throw new RuntimeException("Consul server connection failed for '{$server}'.");
+        }
     }
 
     /**
