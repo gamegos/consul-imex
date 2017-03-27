@@ -1,5 +1,5 @@
 <?php
-namespace Gamegos\ConsulImex;
+namespace Gamegos\ConsulImex\Command;
 
 /* Imports from symfony/console */
 use Symfony\Component\Console\Input\InputInterface;

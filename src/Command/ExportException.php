@@ -1,14 +1,14 @@
 <?php
-namespace Gamegos\ConsulImex;
+namespace Gamegos\ConsulImex\Command;
 
 /* Imports from symfony/console */
 use Symfony\Component\Console\Exception\RuntimeException;
 
 /**
- * Runtime Exception for Import Command
+ * Runtime Exception for Export Command
  * @author Safak Ozpinar <safak@gamegos.com>
  */
-class ImportException extends RuntimeException
+class ExportException extends RuntimeException
 {
 
 }
