@@ -3,7 +3,7 @@
 call_user_func(function () {
     $files = [
         __DIR__ . '/../vendor/autoload.php',
-        __DIR__ . '/../../../vendor/autoload.php',
+        __DIR__ . '/../../../autoload.php',
     ];
     foreach ($files as $file) {
         if (file_exists($file)) {
