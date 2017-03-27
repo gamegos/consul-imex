@@ -19,6 +19,9 @@
             "Gamegos\\ConsulImex\\": "src/"
         }
     },
+    "bin" : [
+        "scripts/consul-imex"
+    ],
     "require-dev": {
         "gamegos/php-code-sniffer": "*"
     },
