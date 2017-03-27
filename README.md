@@ -18,6 +18,10 @@ Consul-Imex is a simple import/export tool for [Consul](https://www.consul.io/) 
 
     composer create-project gamegos/consul-imex:dev-master
 
+### Docker
+
+    docker pull sozpinar/consul-imex
+
 ## Usage
 
 ### Export
@@ -25,6 +29,7 @@ Consul-Imex is a simple import/export tool for [Consul](https://www.consul.io/) 
     Usage:
       php scripts/consul-imex.php export [options] <file>
       composer exec -- consul-imex export [options] <file>
+      docker run -t sozpinar/consul-imex export [options] <file>
 
     Arguments:
       file                  Output data file.
@@ -38,6 +43,7 @@ Consul-Imex is a simple import/export tool for [Consul](https://www.consul.io/) 
     Usage:
       php scripts/consul-imex.php import [options] <file>
       composer exec -- consul-imex import [options] <file>
+      docker run -t sozpinar/consul-imex import [options] <file>
 
     Arguments:
       file                  Input data file.
@@ -51,6 +57,7 @@ Consul-Imex is a simple import/export tool for [Consul](https://www.consul.io/) 
     Usage:
       php scripts/consul-imex.php copy <source> <target>
       composer exec -- consul-imex copy <source> <target>
+      docker run -t sozpinar/consul-imex copy <source> <target>
 
     Arguments:
       source                             Source prefix.
