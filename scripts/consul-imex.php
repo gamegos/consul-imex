@@ -1,11 +1,23 @@
 <?php
-// Import autoloader.
-require __DIR__ . '/../vendor/autoload.php';
+// Import the autoloader.
+call_user_func(function () {
+    $files = [
+        __DIR__ . '/../vendor/autoload.php',
+        __DIR__ . '/../../../vendor/autoload.php',
+    ];
+    foreach ($files as $file) {
+        if (file_exists($file)) {
+            require $file;
+            return;
+        }
+    }
+    fwrite(
+        STDERR,
+        'Cannot find the autoload file!' . PHP_EOL .
+        'You must set up the project dependencies using `composer install`' . PHP_EOL
+    );
+    exit(1);
+});
 
-$app = new Symfony\Component\Console\Application('Import/Export Tool for Consul Key/Value Storage');
-$app->addCommands([
-    new Gamegos\ConsulImex\ImportCommand(),
-    new Gamegos\ConsulImex\ExportCommand(),
-    new Gamegos\ConsulImex\CopyCommand(),
-]);
-$app->run();
+// Run the application.
+(new Gamegos\ConsulImex\Application())->run();
