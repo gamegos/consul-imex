@@ -27,7 +27,7 @@ Consul-Imex is a simple import/export tool for [Consul](https://www.consul.io/) 
       composer exec -- consul-imex export [options] <file>
 
     Arguments:
-      file                  Input data file.
+      file                  Output data file.
 
     Options:
       -u, --url[=URL]       Consul server url.
