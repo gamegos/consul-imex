@@ -1,0 +1,8 @@
+*
+!scripts
+!src
+!vendor
+!composer.json
+!composer.lock
+!VERSION
+!LICENSE
