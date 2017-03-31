@@ -19,5 +19,7 @@ call_user_func(function () {
     exit(1);
 });
 
+// Read the VERSION file.
+$version = file_get_contents(__DIR__ . '/../VERSION');
 // Run the application.
-(new Gamegos\ConsulImex\Application())->run();
+(new Gamegos\ConsulImex\Application($version))->run();

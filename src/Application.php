@@ -12,10 +12,11 @@ class Application extends BaseApplication
 {
     /**
      * Construct.
+     * @param string $version
      */
-    public function __construct()
+    public function __construct($version)
     {
-        parent::__construct('Consul Imex');
+        parent::__construct('Consul Imex', $version);
 
         $this->addCommands([
             new Command\ImportCommand(),
