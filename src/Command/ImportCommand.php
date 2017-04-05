@@ -61,12 +61,16 @@ class ImportCommand extends AbstractCommand
 
         $this->import($data);
 
-        $this->getOutput()->write(sprintf('<options=bold>%d</> key(s) are stored.', $this->keyCount));
+        $this->getOutput()->write(sprintf(
+            '<options=bold>%d</> key%s stored.',
+            $this->keyCount,
+            $this->keyCount == 1 ? ' is' : 's are'
+        ));
         if ($this->dirCount) {
             $this->getOutput()->write(sprintf(
-                ' (%d new %s created.)',
+                ' (%d new director%s created.)',
                 $this->dirCount,
-                $this->dirCount == 1 ? 'directory is' : 'directories are'
+                $this->dirCount == 1 ? 'y is' : 'ies are'
             ));
         }
         $this->getOutput()->writeln('');

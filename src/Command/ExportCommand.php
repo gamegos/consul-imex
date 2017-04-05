@@ -42,13 +42,17 @@ class ExportCommand extends AbstractCommand
      */
     protected function export()
     {
-        $keys    = $this->getKeys();
-        $data    = [];
-        $success = 0;
+        $keys     = $this->getKeys();
+        $data     = [];
+        $success  = 0;
         foreach ($keys as $path) {
             $success += (int) $this->fetchValue($data, $path);
         }
-        $this->getOutput()->writeln(sprintf('<options=bold>%d</> key(s) are fetched.', $success));
+        $this->getOutput()->writeln(sprintf(
+            '<options=bold>%d</> key%s fetched.',
+            $success,
+            $success != 1 ? 's are' : ' is'
+        ));
         return $data;
     }
 
