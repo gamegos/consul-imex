@@ -19,11 +19,11 @@ You can install Consul Imex in several ways:
 
 ### Install as an executable phar file
 
-Download the phar file from `https://github.com/gamegos/consul-imex/releases/download/0.2.0/consul-imex.phar`, then assign execute permission for it. 
+Download the phar file from `https://github.com/gamegos/consul-imex/releases/download/1.0.0-rc1/consul-imex.phar`, then assign execute permission for it. 
 
 Example:
 
-    wget -O /usr/local/bin/consul-imex https://github.com/gamegos/consul-imex/releases/download/0.2.0/consul-imex.phar
+    wget -O /usr/local/bin/consul-imex https://github.com/gamegos/consul-imex/releases/download/1.0.0-rc1/consul-imex.phar
     chmod +x /usr/local/bin/consul-imex
 
 ### Install as a docker image
