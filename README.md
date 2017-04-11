@@ -8,12 +8,27 @@ Consul-Imex is a simple import/export tool for [Consul](https://www.consul.io/) 
   - from a prefix to another prefix.
   - from a server to another server under a specified prefix.
 
-## Requirements
-
-* PHP >= 5.5.9, [Git](https://git-scm.com/) and [Composer](https://getcomposer.org/) are required to run Consul Imex in a PHP project.
-* [Docker](https://www.docker.com/) is required to run Consul Imex in a docker container.
-
 ## Installation
+
+You can install Consul Imex in several ways:
+
+* Executable phar file (requires PHP >=5.5.9)
+* Docker image (requires [Docker](https://www.docker.com/) engine)
+* Composer dependancy (requires [Git](https://git-scm.com/), [Composer](https://getcomposer.org/) and PHP >=5.5.9)
+* Single PHP project (requires [Git](https://git-scm.com/), [Composer](https://getcomposer.org/) and PHP >=5.5.9)
+
+### Install as an executable phar file
+
+Download the phar file from `https://github.com/gamegos/consul-imex/releases/download/0.2.0/consul-imex.phar`, then assign execute permission for it. 
+
+Example:
+
+    wget -O /usr/local/bin/consul-imex https://github.com/gamegos/consul-imex/releases/download/0.2.0/consul-imex.phar
+    chmod +x /usr/local/bin/consul-imex
+
+### Install as a docker image
+
+    docker pull sozpinar/consul-imex
 
 ### Install as a Composer dependency
 
@@ -21,28 +36,40 @@ Consul-Imex is a simple import/export tool for [Consul](https://www.consul.io/) 
 
 ### Install as a PHP project
 
+Install via `composer`:
+
     composer create-project gamegos/consul-imex
 
 Or clone/download and install manually:
 
-    $ git clone https://github.com/gamegos/consul-imex.git
-    $ cd consul-imex
-    $ composer install
-
-
-### Install as a docker image
-
-    docker pull sozpinar/consul-imex
+    git clone https://github.com/gamegos/consul-imex.git
+    cd consul-imex
+    composer install
 
 ## Usage
 
+#### Run as an executable phar file:
+
+    consul-imex <command> [options] [arguments]
+
+#### Run as a docker container:
+
+    docker run -t sozpinar/consul-imex <command> [options] [arguments]
+
+#### Run as a composer vendor binary:
+
+    composer exec -- consul-imex <command> [options] [arguments]
+
+#### Run as a PHP script:
+
+    php scripts/consul-imex.php <command> [options] [arguments]
+
+
 ### Export
 
-Use one of the commands below depending on your installation:
+#### Usage:
 
-* `php scripts/consul-imex.php export [options] <file>`
-* `composer exec -- consul-imex export [options] <file>`
-* `docker run -t sozpinar/consul-imex export [options] <file>`
+    consul-imex export [options] <file>
 
 #### Arguments:
 
@@ -56,11 +83,9 @@ Use one of the commands below depending on your installation:
 
 ### Import
 
-Use one of the commands below depending on your installation:
+#### Usage:
 
-* `php scripts/consul-imex.php import [options] <file>`
-* `composer exec -- consul-imex import [options] <file>`
-* `docker run -t sozpinar/consul-imex import [options] <file>`
+    consul-imex import [options] <file>
 
 #### Arguments:
 
@@ -73,11 +98,9 @@ Use one of the commands below depending on your installation:
 
 ### Copy
 
-Use one of the commands below depending on your installation:
+#### Usage:
 
-* `php scripts/consul-imex.php copy <source> <target>`
-* `composer exec -- consul-imex copy <source> <target>`
-* `docker run -t sozpinar/consul-imex copy <source> <target>`
+    consul-imex copy [options] <source> <target>
 
 #### Arguments:
 
@@ -101,37 +124,39 @@ this depends how the keys are ordered.
 
 ### Export
 
-    $ php scripts/consul-imex.php export -u http://localhost:8500 -p /old/prefix my-data.json
+    $ consul-imex export -u http://localhost:8500 -p /old/prefix my-data.json
     93 keys are fetched.
 
 ### Import
 
-    $ php scripts/consul-imex.php export -u http://localhost:8500 -p /new/prefix my-data.json
+    $ consul-imex export -u http://localhost:8500 -p /new/prefix my-data.json
     93 keys are stored. (25 new directories are created.)
 
 ### Copy
 
-* Copy keys from `/old/prefix` to `/new/prefix`:
-```sh
-$ php scripts/consul-imex.php copy -s http://localhost:8500 -t /old/prefix /new/prefix
-93 keys are fetched.
-93 keys are stored. (25 new directories are created.)
-Operation completed.
-```
-* Copy keys under `/my/prefix` to another server:
-```sh
-$ php scripts/consul-imex.php copy -s http://localhost:8500 -t http://anotherhost:8500 /my/prefix /my/prefix
-93 keys are fetched.
-93 keys are stored. (25 new directories are created.)
-Operation completed.
-```
-* Copy all keys to another server:
-```sh
-$ php scripts/consul-imex.php copy -s http://localhost:8500 -t http://anotherhost:8500
-492 keys are fetched.
-492 keys are stored. (108 new directories are created.)
-Operation completed.
-```
+Copy keys from `/old/prefix` to `/new/prefix`:
+
+    $ consul-imex copy -s http://localhost:8500 -t /old/prefix /new/prefix
+    93 keys are fetched.
+    93 keys are stored. (25 new directories are created.)
+    Operation completed.
+
+
+Copy keys under `/my/prefix` to another server:
+
+    $ consul-imex copy -s http://localhost:8500 -t http://anotherhost:8500 /my/prefix /my/prefix
+    93 keys are fetched.
+    93 keys are stored. (25 new directories are created.)
+    Operation completed.
+
+
+Copy all keys to another server:
+
+    $ consul-imex copy -s http://localhost:8500 -t http://anotherhost:8500
+    492 keys are fetched.
+    492 keys are stored. (108 new directories are created.)
+    Operation completed.
+
 
 ## Notice for Docker Usage
 
@@ -142,5 +167,4 @@ If your Consul service is in a private network or does not have a public URL, yo
     $ docker run -it --net=host sozpinar/consul-imex export -u http://localhost:8500 -p /foo/bar
     93 keys are fetched.
 
-If the default docker network type is `bridge` then the running container does not recognize 'localhost'. So we simply
-add `--net=host` argument to make the container to use the network of the host machine.
+If the default docker network type is `bridge` then the running container does not recognize 'localhost'. So we simply add `--net=host` argument to make the container to use the network of the host machine.
