@@ -12,4 +12,5 @@ RUN apk --update add git \
 
 ENV RUNNING_IN_CONTAINER=1
 
-ENTRYPOINT ["php", "scripts/consul-imex.php"]
+WORKDIR /consul-imex
+ENTRYPOINT ["php", "/app/scripts/consul-imex.php"]
