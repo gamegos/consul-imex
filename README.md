@@ -54,7 +54,9 @@ Or clone/download and install manually:
 
 #### Run as a docker container:
 
-    docker run -t sozpinar/consul-imex <command> [options] [arguments]
+See [Notices for Docker Usage](#notices-for-docker-usage) for detailed information of docker usage.
+
+    docker run -t -v `pwd`:/consul-imex sozpinar/consul-imex <command> [options] [arguments]
 
 #### Run as a composer vendor binary:
 
@@ -112,14 +114,6 @@ Or clone/download and install manually:
 * **--source-server (-s):** Source server URL.
 * **--target-server (-t):** Target server URL. If omitted, source server is used as target server.
 
-## Known Issues
-
-### Directories with values
-
-Consul key/value storage allows a directory to have a value like an ordinary key.
-If a directory has a value, Consul Imex will ignore the value or the sub-keys;
-this depends how the keys are ordered.
-
 ## Examples
 
 ### Export
@@ -129,7 +123,7 @@ this depends how the keys are ordered.
 
 ### Import
 
-    $ consul-imex export -u http://localhost:8500 -p /new/prefix my-data.json
+    $ consul-imex import -u http://localhost:8500 -p /new/prefix my-data.json
     93 keys are stored. (25 new directories are created.)
 
 ### Copy
@@ -158,13 +152,51 @@ Copy all keys to another server:
     Operation completed.
 
 
-## Notice for Docker Usage
+## Notices for Docker Usage
+
+### Input/Output File Location
+
+To use `import` and `export` commands with docker, the input/output files must be accessible by the container. The default working directory of the image is `/consul-imex` and input/output files are placed under this directory by default.
+
+#### Examples for `export` command:
+
+**Example 1:** Mount a host directory to the container for `export` operation, then the container will create `my-data.json` file in the host directory.
+
+    $ docker run -it -v `pwd`:/consul-imex sozpinar/consul-imex export -u 192.168.1.20:8500 -p /foo/bar my-data.json
+    93 keys are fetched.
+
+**Example 2:** Copy the output file to your working directory after `export` operation.
+
+    $ docker run -it sozpinar/consul-imex export -u 192.168.1.20:8500 -p /foo/bar my-data.json
+    93 keys are fetched.
+    $ docker cp `docker ps -ql`:/consul-imex/my-data.json .
+
+#### Examples for `import` command:
+
+**Example 1:** Mount a host directory to the container for `import` operation, then the container will read `my-data.json` file from the host directory.
+
+    $ docker run -it -v `pwd`:/consul-imex sozpinar/consul-imex import -u 192.168.1.20:8500 -p /new/prefix my-data.json
+    93 keys are stored. (25 new directories are created.)
+
+**Example 2:** Mount a file to the container and use it for `import` operation. This method does not require the input file to be placed in the default working directory.
+
+    $ docker run -it -v `pwd`/my-data.json:/my-data.json sozpinar/consul-imex import -u 192.168.1.20:8500 -p /new/prefix -v /my-data.json
+    93 keys are stored. (25 new directories are created.)
+
+### Network Configuration
 
 If your Consul service is in a private network or does not have a public URL, you may have to set up a custom network configuration for the docker container.
 
-### Example
+#### Example
 
-    $ docker run -it --net=host sozpinar/consul-imex export -u http://localhost:8500 -p /foo/bar
-    93 keys are fetched.
+    docker run -it --net=host sozpinar/consul-imex copy -s http://localhost:8500 -t http://anotherhost:8500
 
 If the default docker network type is `bridge` then the running container does not recognize 'localhost'. So we simply add `--net=host` argument to make the container to use the network of the host machine.
+
+## Known Issues
+
+### Directories with values
+
+Consul key/value storage allows a directory to have a value like an ordinary key.
+If a directory has a value, Consul Imex will ignore the value or the sub-keys;
+this depends how the keys are ordered.
