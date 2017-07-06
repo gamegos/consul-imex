@@ -130,7 +130,7 @@ See [Notices for Docker Usage](#notices-for-docker-usage) for detailed informati
 
 Copy keys from `/old/prefix` to `/new/prefix`:
 
-    $ consul-imex copy -s http://localhost:8500 -t /old/prefix /new/prefix
+    $ consul-imex copy -s http://localhost:8500 /old/prefix /new/prefix
     93 keys are fetched.
     93 keys are stored. (25 new directories are created.)
     Operation completed.

@@ -113,6 +113,8 @@ abstract class AbstractCommand extends Command
 
     /**
      * Health check.
+     * @param  \Symfony\Component\Console\Input\InputInterface $input
+     * @throws \Symfony\Component\Console\Exception\RuntimeException
      */
     public function healthCheck(InputInterface $input)
     {

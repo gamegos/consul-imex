@@ -127,6 +127,7 @@ class ImportCommand extends AbstractCommand
     /**
      * Check if a key exists.
      * @param  string $key
+     * @param  bool $isRelative
      * @return bool
      */
     protected function keyExists($key, $isRelative = false)
