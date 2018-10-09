@@ -11,7 +11,7 @@
     "require": {
         "php": ">=5.5.9",
         "symfony/console": "^3.0",
-        "guzzlehttp/guzzle": "^6.1",
+        "guzzlehttp/guzzle": "^6.3",
         "ext-json": "~1.3"
     },
     "autoload": {
