@@ -33,6 +33,8 @@ class CopyCommand extends Command
         $this->addArgument('target', InputArgument::REQUIRED, 'Target prefix.');
         $this->addOption('source-server', 's', InputOption::VALUE_REQUIRED, 'Source server URL.');
         $this->addOption('target-server', 't', InputOption::VALUE_REQUIRED, 'Target server URL. If omitted, source server is used as target server.');
+        $this->addOption('source-server-token', 'c', InputOption::VALUE_OPTIONAL, 'Source server Consul token.');
+        $this->addOption('target-server-token', null, InputOption::VALUE_OPTIONAL, 'Target server Consul token. If omitted, source server token is used as target server token.');
     }
 
     /**
@@ -53,6 +55,9 @@ class CopyCommand extends Command
         if ($input->getOption('source-server') !== null) {
             $exportParams['--url'] = $input->getOption('source-server');
         }
+        if ($input->getOption('source-server-token') !== null) {
+            $exportParams['--token'] = $input->getOption('source-server-token');
+        }
 
         // Run the 'export' command.
         $exportReturn = $exportCommand->run(new ArrayInput($exportParams), $output);
@@ -71,6 +76,11 @@ class CopyCommand extends Command
             $importParams['--url'] = $input->getOption('target-server');
         } elseif ($input->getOption('source-server') !== null) {
             $importParams['--url'] = $input->getOption('source-server');
+        }
+        if ($input->getOption('target-server-token') !== null) {
+            $importParams['--token'] = $input->getOption('target-server-token');
+        } elseif ($input->getOption('source-server-token') !== null) {
+            $importParams['--token'] = $input->getOption('source-server-token');
         }
 
         // Run the 'import' command.
