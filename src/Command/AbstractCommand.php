@@ -43,6 +43,12 @@ abstract class AbstractCommand extends Command
     protected $prefix = '';
 
     /**
+     * Consul token for current operation.
+     * @var string
+     */
+    protected $token = '';
+
+    /**
      * HTTP Client
      * @var \GuzzleHttp\Client
      */
@@ -62,6 +68,7 @@ abstract class AbstractCommand extends Command
         $this->addArgument('file', InputArgument::REQUIRED);
         $this->addOption('url', 'u', InputOption::VALUE_REQUIRED, 'Consul server url.', self::DEFAULT_URL);
         $this->addOption('prefix', 'p', InputOption::VALUE_REQUIRED, 'Path prefix.', '');
+        $this->addOption('token', 'c', InputOption::VALUE_OPTIONAL, 'Consul token.');
     }
 
     /**
@@ -69,6 +76,10 @@ abstract class AbstractCommand extends Command
      */
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
+        if ($input->getOption('token') !== null) {
+            $this->token = $input->getOption('token');
+        }
+
         $this->healthCheck($input);
 
         $this->prefix = trim($input->getOption('prefix'), '/');
@@ -87,7 +98,11 @@ abstract class AbstractCommand extends Command
     protected function getHttpClient()
     {
         if (null === $this->httpClient) {
-            $this->httpClient = new Client();
+            $options = [];
+            if ($this->token) {
+                $options['headers']['X-Consul-Token'] = $this->token;
+            }
+            $this->httpClient = new Client($options);
         }
         return $this->httpClient;
     }

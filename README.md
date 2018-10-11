@@ -14,7 +14,7 @@ You can install Consul Imex in several ways:
 
 * Executable phar file (requires PHP >=5.5.9)
 * Docker image (requires [Docker](https://www.docker.com/) engine)
-* Composer dependancy (requires [Git](https://git-scm.com/), [Composer](https://getcomposer.org/) and PHP >=5.5.9)
+* Composer dependency (requires [Git](https://git-scm.com/), [Composer](https://getcomposer.org/) and PHP >=5.5.9)
 * Single PHP project (requires [Git](https://git-scm.com/), [Composer](https://getcomposer.org/) and PHP >=5.5.9)
 
 ### Install as an executable phar file
@@ -81,7 +81,7 @@ See [Notices for Docker Usage](#notices-for-docker-usage) for detailed informati
 
 * **--url (-u):** Consul server url.
 * **--prefix (-p):** Path prefix.
-
+* **--token (-c):** Consul token.
 
 ### Import
 
@@ -97,6 +97,7 @@ See [Notices for Docker Usage](#notices-for-docker-usage) for detailed informati
 
 * **--url (-u):** Consul server url.
 * **--prefix (-p):** Path prefix.
+* **--token (-c):** Consul token.
 
 ### Copy
 
@@ -113,6 +114,8 @@ See [Notices for Docker Usage](#notices-for-docker-usage) for detailed informati
 
 * **--source-server (-s):** Source server URL.
 * **--target-server (-t):** Target server URL. If omitted, source server is used as target server.
+* **--source-server-token (-c):** Source server Consul token.
+* **--target-server-token:** Target server Consul token. If omitted, source server token is used as target server token.
 
 ## Examples
 
@@ -120,10 +123,20 @@ See [Notices for Docker Usage](#notices-for-docker-usage) for detailed informati
 
     $ consul-imex export -u http://localhost:8500 -p /old/prefix my-data.json
     93 keys are fetched.
+   
+Export using token key:
+
+    $ consul-imex export -c 4874874a-2a3s-7892-123e-597a4e1v87e1 -u http://localhost:8500 -p /old/prefix my-data.json
+    93 keys are fetched.
 
 ### Import
 
     $ consul-imex import -u http://localhost:8500 -p /new/prefix my-data.json
+    93 keys are stored. (25 new directories are created.)
+   
+Import using token key:
+
+    $ consul-imex import -c 4874874a-2a3s-7892-123e-597a4e1v87e1 -u http://localhost:8500 -p /new/prefix my-data.json
     93 keys are stored. (25 new directories are created.)
 
 ### Copy
@@ -135,10 +148,24 @@ Copy keys from `/old/prefix` to `/new/prefix`:
     93 keys are stored. (25 new directories are created.)
     Operation completed.
 
+Copy keys from `/old/prefix` to `/new/prefix` using token:
+
+    $ consul-imex copy -s http://localhost:8500 -c 4874874a-2a3s-7892-123e-597a4e1v87e1 /old/prefix /new/prefix
+    93 keys are fetched.
+    93 keys are stored. (25 new directories are created.)
+    Operation completed.
+
 
 Copy keys under `/my/prefix` to another server:
 
     $ consul-imex copy -s http://localhost:8500 -t http://anotherhost:8500 /my/prefix /my/prefix
+    93 keys are fetched.
+    93 keys are stored. (25 new directories are created.)
+    Operation completed.
+
+Copy keys under `/my/prefix` to another server using token:
+
+    $ consul-imex copy -s http://localhost:8500 -c 4874874a-2a3s-7892-123e-597a4e1v87e1 -t http://anotherhost:8500 --target-server-token 6242c15a-9w4x-2318-61a2-8as8c47317 /my/prefix /my/prefix
     93 keys are fetched.
     93 keys are stored. (25 new directories are created.)
     Operation completed.
