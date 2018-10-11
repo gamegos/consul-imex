@@ -58,7 +58,7 @@ class ExportCommand extends AbstractCommand
 
     /**
      * Get the keys under current prefix from Consul.
-     * @throws \Gamegos\ConsulImex\ExportException
+     * @throws \Gamegos\ConsulImex\Command\ExportException
      * @return array
      */
     protected function getKeys()
@@ -85,7 +85,7 @@ class ExportCommand extends AbstractCommand
     }
 
     /**
-     * Fetch a value from Consul into a buffer with reccursive index.
+     * Fetch a value from Consul into a buffer with recursive index.
      * @param  array $buffer Buffer that the value will be added in.
      * @param  string $path Path of a key that is relative to current prefix.
      * @return bool
