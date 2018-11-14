@@ -1,5 +1,9 @@
 # Consul Imex Changelog
 
+## [1.0.0-rc3] - 2018-11-14
+* Added consul token support.
+* Updated HTTP client library.
+
 ## [1.0.0-rc2] - 2017-04-19
 * Changed the working directory of the docker image to improve handling input/output files.
 * Fixed documentation for docker usage.
